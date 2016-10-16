@@ -113,7 +113,7 @@ class MainWidget(QtGui.QWidget):
     def paintEvent(self, event):
         painter = QtGui.QPainter()
 
-        painter.begin(self.image)
+        painter.begin(self)
 
         painter.setPen(QtCore.Qt.black)
         painter.setBrush(QtCore.Qt.NoBrush)
@@ -139,12 +139,13 @@ class MainWidget(QtGui.QWidget):
     def showImg(self, num=0):
         #self.pixmap = QtGui.QPixmap(self.path_list[num])
         if self.img_num > 1:
-            cvimg = cv2.imread(self.path_list[num], 1)
-            h, w, ch = cvimg.shape
+            img = cv2.imread(self.path_list[num], 1)
+            h, w, ch = img.shape
             bytesPerLine = 3 * w
-            #img = self.rgb2bgr(cvimg)
+            #img = self.rgb2bgr(img)
+            cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
 
-            self.image = QtGui.QImage(cvimg.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
+            self.image = QtGui.QImage(img.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
 
         #self.pixlabel.setPixmap(self.pixmap)
         self.pixlabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
