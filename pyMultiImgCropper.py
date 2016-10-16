@@ -37,11 +37,8 @@ class MainWidget(QtGui.QWidget):
         self.hbox1 = QtGui.QHBoxLayout()
 
         self.pixlabel = QtGui.QLabel(self)
-        #self.pixmap = QtGui.QPixmap("./initialImg.png")
-        self.image = QtGui.QImage("./initialImg.png")
-        #self.pixlabel.resize(self.pixmap.size())
+        self.image = QtGui.QImage("./initialImg2.png")
 
-        #self.pixlabel.setPixmap(self.pixmap)
         self.pixlabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
         self.pixlabel.resize(self.image.size())
 
@@ -87,14 +84,6 @@ class MainWidget(QtGui.QWidget):
 
         self.path_list = [str(url.path()[1:]) for url in self.urls]
         self.img_num = len(self.path_list)
-
-        for path in self.path_list:
-            if os.path.exists(path):
-                img = cv2.imread(path, 1) 
-                self.img_list.append(img)
-            height, width, ch = self.img_list[0].shape
-            self.resize(width, height)
-        
         self.showImg()
 
     def mousePressEvent(self, event):
@@ -137,30 +126,23 @@ class MainWidget(QtGui.QWidget):
         painter.end()
 
     def showImg(self, num=0):
-        #self.pixmap = QtGui.QPixmap(self.path_list[num])
-        if self.img_num > 1:
-            img = cv2.imread(self.path_list[num], 1)
-            h, w, ch = img.shape
-            bytesPerLine = 3 * w
-            #img = self.rgb2bgr(img)
-            cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
+        img = cv2.imread(self.path_list[num], 1)
+        h, w, ch = img.shape
 
-            self.image = QtGui.QImage(img.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
+        self.resize(w, h)
+        bytesPerLine = 3 * w
+            
+        cv2.cvtColor(img, cv2.COLOR_BGR2RGB, img)
 
-        #self.pixlabel.setPixmap(self.pixmap)
+        self.image = QtGui.QImage(img.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
+
         self.pixlabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
         self.pixlabel.resize(self.image.size())
     
-    def rgb2bgr(self, img):
-        h, w, ch = img.shape
-        swappedimg = np.zeros((h, w, ch))
+    def saveCroppedImage(self):
+        img_list = []
 
-        swappedimg[:, :, 0] = img[:, :, 2]
-        swappedimg[:, :, 1] = img[:, :, 1]
-        swappedimg[:, :, 2] = img[:, :, 0]
-
-        return swappedimg
-
+    
 if __name__ == "__main__":
         
     app = QtGui.QApplication(sys.argv)
