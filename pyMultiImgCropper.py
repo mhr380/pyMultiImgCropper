@@ -37,7 +37,7 @@ class MainWidget(QtGui.QWidget):
         self.hbox1 = QtGui.QHBoxLayout()
 
         self.pixlabel = QtGui.QLabel(self)
-        self.image = QtGui.QImage("./initialImg2.png")
+        self.image = QtGui.QImage("./initialImg.png")
 
         self.pixlabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
         self.pixlabel.resize(self.image.size())
