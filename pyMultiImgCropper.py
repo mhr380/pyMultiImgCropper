@@ -2,16 +2,16 @@
 
 """
 pyMultiImgCropper.py
-version: 1.0
+version: 0.01
 @author: mhr380
 
 """
 
 import sys
 import os
+import datetime
 
 from PIL import Image
-import cv2
 import numpy as np
 
 from PyQt4 import QtCore
@@ -69,6 +69,9 @@ class MainWidget(QtGui.QWidget):
             self.showImg(self.img_list, self.num)
 
         if event.key() == QtCore.Qt.Key_Escape:
+            self.showImg(self.img_list)
+            
+        if event.key() == QtCore.Qt.Key_Q:
             self.close()
         
         if event.key() == QtCore.Qt.Key_Shift:
@@ -183,10 +186,27 @@ class MainWidget(QtGui.QWidget):
         epx = self.epx
         epy = self.epy
 
+        today = datetime.date.today()
+
+        srcpath = self.path_list[0] 
+
+        srcdir = os.path.dirname(srcpath) + "/"
+        outdir = srcdir + str(today) + "_"
+        
+        suffix = 0
+        print outdir + str("{0:03d}".format(suffix))
+        while os.path.exists(outdir + str("{0:03d}".format(suffix))):
+            suffix = suffix + 1
+        
+        outdir = outdir + str("{0:03d}".format(suffix))
+        os.mkdir(outdir)
+
         if self.flg_allowCrop:
             for n, img in enumerate(self.img_list):
                 pilimg = Image.fromarray(img[ ipy: epy, ipx: epx, :])
-                pilimg.save(self.path_list[n])
+
+                filename = os.path.basename(self.path_list[n])
+                pilimg.save(os.path.join(outdir, filename))
     
 if __name__ == "__main__":
         
