@@ -11,6 +11,7 @@ import sys
 import os
 
 from PIL import Image
+import cv2
 import numpy as np
 
 from PyQt4 import QtCore
@@ -72,6 +73,9 @@ class MainWidget(QtGui.QWidget):
         
         if event.key() == QtCore.Qt.Key_Shift:
             self.flg_square = True
+           
+        if event.key() == QtCore.Qt.Key_S:
+            self.saveCroppedImage()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -108,7 +112,6 @@ class MainWidget(QtGui.QWidget):
         self.pressed = False
         self.end_pt = event.pos().x(), event.pos().y()
         self.update()
-        #self.saveCroppedImage()
         self.cropImage()
     
     def paintEvent(self, event):
@@ -158,23 +161,27 @@ class MainWidget(QtGui.QWidget):
         ipy = self.initial_pt[1]
         epx = self.end_pt[0]
         epy = self.end_pt[1] 
-
+        
+        self.ipx, self.ipy = ipx, ipy
+        self.epx, self.epy = epx, epy
+        
         mask[ipy: epy, ipx: epx] = 1
 
         cropped_img_list = []
         if self.flg_allowCrop:
             for n, img in enumerate(self.img_list):
-                img[mask == 0] = 0 
-                cropped_img_list.append(img)
+                cropped_img = img.copy()
+                cropped_img[mask == 0] = 0 
+                cropped_img_list.append(cropped_img)
                 
         self.showImg(cropped_img_list)
 
     def saveCroppedImage(self):
         
-        ipx = self.initial_pt[0]
-        ipy = self.initial_pt[1]
-        epx = self.end_pt[0]
-        epy = self.end_pt[1] 
+        ipx = self.ipx
+        ipy = self.ipy
+        epx = self.epx
+        epy = self.epy
 
         if self.flg_allowCrop:
             for n, img in enumerate(self.img_list):
