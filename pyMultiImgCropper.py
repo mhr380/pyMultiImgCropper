@@ -17,7 +17,8 @@ import numpy as np
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 
-class MainWidget(QtGui.QWidget):
+#class MainWidget(QtGui.QWidget):
+class MainWidget(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWidget, self).__init__()
 
@@ -54,6 +55,9 @@ class MainWidget(QtGui.QWidget):
 
         self.flg_square = False
         self.flg_allowCrop = False
+        
+        self.status_bar = QtGui.QStatusBar(self)
+        self.setStatusBar(self.status_bar)
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_B:
@@ -148,7 +152,7 @@ class MainWidget(QtGui.QWidget):
         img = img_list[num]
         h, w, ch = img.shape
         self.h, self.w = h, w
-        self.resize(w, h)
+        self.resize(w, h + 20)
         bytesPerLine = 3 * w
             
         self.image = QtGui.QImage(img.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
@@ -208,6 +212,8 @@ class MainWidget(QtGui.QWidget):
                 filename = os.path.basename(self.path_list[n])
                 pilimg.save(os.path.join(outdir, filename))
     
+        self.status_bar.showMessage("Saved images in " + outdir)
+        
 if __name__ == "__main__":
         
     app = QtGui.QApplication(sys.argv)
