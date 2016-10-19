@@ -10,7 +10,7 @@ version: 1.0
 import sys
 import os
 
-import cv2
+from PIL import Image
 import numpy as np
 
 from PyQt4 import QtCore
@@ -88,8 +88,12 @@ class MainWidget(QtGui.QWidget):
         self.path_list = [str(url.path()[1:]) for url in self.urls]
         self.img_num = len(self.path_list)
         
-        self.img_list = [cv2.imread(self.path_list[num], 1) for num in range(self.img_num)]
-        
+        for num in range(self.img_num):
+            pilimg = Image.open(self.path_list[num])
+            pilimg = pilimg.convert("RGB")
+            npimg = np.array(pilimg)
+            self.img_list.append(npimg)
+       
         self.showImg()
 
     def mousePressEvent(self, event):
@@ -133,22 +137,18 @@ class MainWidget(QtGui.QWidget):
         painter.end()
 
     def showImg(self, num=0):
-        
+
         img = self.img_list[num]
         h, w, ch = img.shape
-
         self.resize(w, h)
         bytesPerLine = 3 * w
             
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
         self.image = QtGui.QImage(img.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
 
         self.pixlabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
         self.pixlabel.resize(self.image.size())
     
     def saveCroppedImage(self):
-        img_list = [cv2.imread(self.path_list[num], 1) for num in range(self.img_num)]
         
         ipx = self.initial_pt[0]
         ipy = self.initial_pt[1]
@@ -156,8 +156,9 @@ class MainWidget(QtGui.QWidget):
         epy = self.end_pt[1] 
 
         if self.flg_allowCrop:
-            for n, img in enumerate(img_list):
-                cv2.imwrite(self.path_list[n], img[ ipy: epy, ipx: epx, :])
+            for n, img in enumerate(self.img_list):
+                pilimg = Image.fromarray(img[ ipy: epy, ipx: epx, :])
+                pilimg.save(self.path_list[n])
     
 if __name__ == "__main__":
         
