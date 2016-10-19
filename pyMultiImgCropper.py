@@ -59,13 +59,13 @@ class MainWidget(QtGui.QWidget):
             self.num -= 1
             if self.num < 0:
                 self.num = self.img_num - 1
-            self.showImg(self.num)
+            self.showImg(self.img_list, self.num)
         
         if event.key() == QtCore.Qt.Key_N:
             self.num += 1
             if self.num >= self.img_num:
                 self.num = 0 
-            self.showImg(self.num)
+            self.showImg(self.img_list, self.num)
 
         if event.key() == QtCore.Qt.Key_Escape:
             self.close()
@@ -94,7 +94,7 @@ class MainWidget(QtGui.QWidget):
             npimg = np.array(pilimg)
             self.img_list.append(npimg)
        
-        self.showImg()
+        self.showImg(self.img_list)
 
     def mousePressEvent(self, event):
         self.initial_pt = event.pos().x(), event.pos().y()
@@ -108,7 +108,8 @@ class MainWidget(QtGui.QWidget):
         self.pressed = False
         self.end_pt = event.pos().x(), event.pos().y()
         self.update()
-        self.saveCroppedImage()
+        #self.saveCroppedImage()
+        self.cropImage()
     
     def paintEvent(self, event):
         painter = QtGui.QPainter()
@@ -136,10 +137,11 @@ class MainWidget(QtGui.QWidget):
         self.update()
         painter.end()
 
-    def showImg(self, num=0):
+    def showImg(self, img_list, num=0):
 
-        img = self.img_list[num]
+        img = img_list[num]
         h, w, ch = img.shape
+        self.h, self.w = h, w
         self.resize(w, h)
         bytesPerLine = 3 * w
             
@@ -148,6 +150,25 @@ class MainWidget(QtGui.QWidget):
         self.pixlabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
         self.pixlabel.resize(self.image.size())
     
+    def cropImage(self):
+        
+        mask = np.zeros((self.h, self.w))
+
+        ipx = self.initial_pt[0]
+        ipy = self.initial_pt[1]
+        epx = self.end_pt[0]
+        epy = self.end_pt[1] 
+
+        mask[ipy: epy, ipx: epx] = 1
+
+        cropped_img_list = []
+        if self.flg_allowCrop:
+            for n, img in enumerate(self.img_list):
+                img[mask == 0] = 0 
+                cropped_img_list.append(img)
+                
+        self.showImg(cropped_img_list)
+
     def saveCroppedImage(self):
         
         ipx = self.initial_pt[0]
